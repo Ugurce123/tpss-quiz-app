@@ -1,0 +1,536 @@
+/* Dashboard Mobile Optimizations */
+.dashboard-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 15px;
+  min-height: 100vh;
+}
+
+.dashboard-header {
+  text-align: center;
+  margin-bottom: 25px;
+  color: white;
+}
+
+.dashboard-header h1 {
+  font-size: 2rem;
+  margin-bottom: 8px;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.dashboard-header p {
+  font-size: 1rem;
+  opacity: 0.9;
+}
+
+/* Stats Cards */
+.stats-overview {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.stat-card {
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 20px;
+  text-align: center;
+  color: white;
+  border: 1px solid rgba(255,255,255,0.2);
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  background: rgba(255,255,255,0.15);
+}
+
+.stat-card .icon {
+  font-size: 2rem;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.stat-card .value {
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.stat-card .label {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+/* Levels Navigation */
+.levels-navigation {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.nav-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255,255,255,0.2);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.3);
+  color: white;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  font-size: 1.5rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-button:hover {
+  background: rgba(255,255,255,0.3);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.nav-left {
+  left: -25px;
+}
+
+.nav-right {
+  right: -25px;
+}
+
+/* Levels Container */
+.levels-container {
+  display: flex;
+  overflow-x: auto;
+  gap: 30px;
+  padding: 20px 0;
+  scroll-behavior: smooth;
+  position: relative;
+}
+
+.levels-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.levels-container::-webkit-scrollbar-track {
+  background: rgba(255,255,255,0.1);
+  border-radius: 10px;
+}
+
+.levels-container::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.3);
+  border-radius: 10px;
+}
+
+.levels-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.5);
+}
+
+/* Level Groups */
+.level-group {
+  min-width: 1000px;
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 25px;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+.level-group-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.group-progress-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 3px;
+  overflow: hidden;
+  margin: 10px 0;
+}
+
+.group-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4ade80, #22c55e);
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+.level-group-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 15px;
+}
+
+/* Levels Grid */
+.levels-section {
+  background: white;
+  border-radius: 20px;
+  padding: 25px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.levels-section h2 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 25px;
+  font-size: 1.8rem;
+}
+
+.levels-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.level-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 15px;
+  padding: 20px;
+  color: white;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.level-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+}
+
+.level-card.locked {
+  background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+  cursor: not-allowed;
+}
+
+.level-card.completed {
+  background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+}
+
+.level-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.level-number {
+  font-size: 1.2rem;
+  font-weight: bold;
+  background: rgba(255,255,255,0.2);
+  padding: 8px 12px;
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.level-status {
+  font-size: 1.5rem;
+}
+
+.level-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.level-description {
+  font-size: 0.9rem;
+  opacity: 0.9;
+  margin-bottom: 15px;
+  line-height: 1.4;
+}
+
+.level-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  opacity: 0.8;
+  margin-bottom: 15px;
+}
+
+.level-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-start {
+  flex: 1;
+  background: rgba(255,255,255,0.2);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 25px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-start:hover:not(:disabled) {
+  background: rgba(255,255,255,0.3);
+  transform: scale(1.05);
+}
+
+.btn-start:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Loading States */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 50vh;
+  color: white;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(255,255,255,0.3);
+  border-top: 4px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Approval Pending */
+.approval-pending {
+  text-align: center;
+  color: white;
+  padding: 40px 20px;
+}
+
+.approval-pending .icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+  opacity: 0.8;
+}
+
+.approval-pending h2 {
+  font-size: 1.8rem;
+  margin-bottom: 15px;
+}
+
+.approval-pending p {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  line-height: 1.6;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 10px;
+  }
+
+  .dashboard-header h1 {
+    font-size: 1.8rem;
+  }
+
+  .dashboard-header p {
+    font-size: 0.9rem;
+  }
+
+  .stats-overview {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .stat-card {
+    padding: 15px;
+  }
+
+  .stat-card .icon {
+    font-size: 1.5rem;
+  }
+
+  .stat-card .value {
+    font-size: 1.4rem;
+  }
+
+  .stat-card .label {
+    font-size: 0.8rem;
+  }
+
+  /* Mobile Level Groups */
+  .levels-navigation {
+    display: none; /* Mobilde navigasyon butonlarını gizle */
+  }
+
+  .levels-container {
+    gap: 20px;
+    padding: 15px 0;
+    -webkit-overflow-scrolling: touch; /* iOS için smooth scrolling */
+  }
+
+  .level-group {
+    min-width: 320px;
+    padding: 20px;
+  }
+
+  .level-group-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .levels-section {
+    padding: 20px;
+    border-radius: 15px;
+  }
+
+  .levels-section h2 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
+
+  .levels-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .level-card {
+    padding: 18px;
+  }
+
+  .level-header {
+    margin-bottom: 12px;
+  }
+
+  .level-number {
+    font-size: 1rem;
+    padding: 6px 10px;
+  }
+
+  .level-status {
+    font-size: 1.3rem;
+  }
+
+  .level-name {
+    font-size: 1rem;
+  }
+
+  .level-description {
+    font-size: 0.85rem;
+    margin-bottom: 12px;
+  }
+
+  .level-info {
+    font-size: 0.75rem;
+    margin-bottom: 12px;
+  }
+
+  .btn-start {
+    padding: 10px 16px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 1024px) and (min-width: 769px) {
+  /* Tablet Styles */
+  .level-group {
+    min-width: 700px;
+  }
+
+  .level-group-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-container {
+    padding: 8px;
+  }
+
+  .dashboard-header h1 {
+    font-size: 1.6rem;
+  }
+
+  .stats-overview {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-card {
+    padding: 12px;
+  }
+
+  /* Small Mobile Level Groups */
+  .levels-container {
+    gap: 15px;
+    padding: 10px 0;
+  }
+
+  .level-group {
+    min-width: 280px;
+    padding: 15px;
+  }
+
+  .level-group-header h3 {
+    font-size: 1.1rem;
+  }
+
+  .levels-section {
+    padding: 15px;
+  }
+
+  .levels-section h2 {
+    font-size: 1.3rem;
+  }
+
+  .level-card {
+    padding: 15px;
+  }
+
+  .level-name {
+    font-size: 0.95rem;
+  }
+
+  .level-description {
+    font-size: 0.8rem;
+  }
+
+  .btn-start {
+    padding: 8px 14px;
+    font-size: 0.85rem;
+  }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+  .level-card:hover {
+    transform: none;
+  }
+  
+  .level-card:active {
+    transform: scale(0.98);
+  }
+  
+  .btn-start:hover {
+    transform: none;
+  }
+  
+  .btn-start:active {
+    transform: scale(0.95);
+  }
+}

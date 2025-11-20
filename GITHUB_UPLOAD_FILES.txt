@@ -1,0 +1,51 @@
+# GitHub'a Yüklenecek Dosyalar Listesi
+
+## ✅ Ana Dosyalar (Root):
+- package.json
+- vercel.json
+- .gitignore
+- README.md
+- DEPLOYMENT_SUMMARY.md
+- VERCEL_DEPLOYMENT_GUIDE.md
+- QUICK_DEPLOY.md
+- deployment-helper.html
+- auto-deploy.js
+- GITHUB_UPLOAD_CHECKLIST.md
+
+## 📱 Client Klasörü (client/):
+- client/package.json
+- client/public/ (tüm klasör)
+- client/src/ (tüm alt klasörler ve dosyalar)
+  - client/src/components/Navbar.js
+  - client/src/pages/ (tüm .js ve .css dosyaları)
+  - client/src/contexts/AuthContext.js
+  - client/src/utils/security.js
+  - client/src/App.js
+  - client/src/index.js
+  - client/src/index.css
+
+## 🖥️ Server Klasörü (server/):
+- server/package.json
+- server/index.js
+- server/models/ (tüm .js dosyaları)
+- server/routes/ (tüm .js dosyaları)
+- server/middleware/ (tüm .js dosyaları)
+- server/init-production-db.js
+- server/create-levels.js
+- server/check-data.js
+
+## ❌ Yüklenmeyecek Dosyalar:
+- node_modules/ (otomatik ignore)
+- client/build/ (otomatik ignore)
+- server/uploads/ (kullanıcı dosyaları)
+- .env dosyaları (güvenlik)
+- server/.env*
+- client/.env*
+
+## 📋 Upload Kontrolü:
+Yükleme sonrası şunları kontrol edin:
+1. package.json dosyaları mevcut
+2. vercel.json mevcut
+3. README.md görünüyor
+4. client/src/ klasörü tam
+5. server/routes/ klasörü tam
