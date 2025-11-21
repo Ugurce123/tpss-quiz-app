@@ -32,4 +32,3 @@ server/test-*.js
 
 # API - Sadece index.js serverless function olarak çalışsın
 api/init-production-db.js
-api/package.json
