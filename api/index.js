@@ -264,13 +264,7 @@ async function connectToDatabase() {
   return db;
 }
 
-// Import routes
-const authRoutes = require('../lib/routes/auth');
-const questionsRoutes = require('../lib/routes/questions');
-const levelsRoutes = require('../lib/routes/levels');
-const quizRoutes = require('../lib/routes/quiz');
-const statisticsRoutes = require('../lib/routes/statistics');
-const initRoutes = require('../lib/routes/init');
+// Routes are defined inline below
 
 // Health check (before DB connection)
 app.get('/api/health', (req, res) => {
@@ -1338,14 +1332,6 @@ connectToDatabase().then(() => {
       });
     }
   });
-  
-  // Mount imported routes
-  app.use('/api/auth', authRoutes);
-  app.use('/api/questions', questionsRoutes);
-  app.use('/api/levels', levelsRoutes);
-  app.use('/api/quiz', quizRoutes);
-  app.use('/api/statistics', statisticsRoutes);
-  app.use('/api/init', initRoutes);
   
   // Health check endpoint
   app.get('/api/health', (req, res) => {
