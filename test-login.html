@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TPSS Quiz - Login Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 5px;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 TPSS Quiz - API Test Aracı</h1>
+        
+        <div class="test-section">
+            <h2>1. API Health Check</h2>
+            <button onclick="testHealth()">Test Health Endpoint</button>
+            <div id="health-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>2. CORS Test</h2>
+            <button onclick="testCORS()">Test CORS</button>
+            <div id="cors-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>3. Login Test</h2>
+            <label>Email:</label>
+            <input type="email" id="email" value="admin@baggage-quiz.com">
+            
+            <label>Password:</label>
+            <input type="password" id="password" value="Ugur.Saw-123">
+            
+            <button onclick="testLogin()">Test Login</button>
+            <div id="login-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>4. MongoDB Connection Test</h2>
+            <button onclick="testMongoDB()">Test MongoDB</button>
+            <div id="mongodb-result"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://tpss-quiz-app.vercel.app/api';
+
+        function showResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.className = `result ${type}`;
+            element.textContent = message;
+        }
+
+        async function testHealth() {
+            showResult('health-result', 'Testing...', 'info');
+            try {
+                const response = await fetch(`${API_URL}/health`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult('health-result', 
+                        `✅ Success!\n\nStatus: ${response.status}\n\nResponse:\n${JSON.stringify(data, null, 2)}`,
+                        'success'
+                    );
+                } else {
+                    showResult('health-result', 
+                        `❌ Failed!\n\nStatus: ${response.status}\n\nResponse:\n${JSON.stringify(data, null, 2)}`,
+                        'error'
+                    );
+                }
+            } catch (error) {
+                showResult('health-result', 
+                    `❌ Error!\n\n${error.message}\n\nBu genellikle CORS veya network hatası anlamına gelir.`,
+                    'error'
+                );
+            }
+        }
+
+        async function testCORS() {
+            showResult('cors-result', 'Testing CORS...', 'info');
+            try {
+                const response = await fetch(`${API_URL}/health`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const corsHeaders = {
+                    'Access-Control-Allow-Origin': response.headers.get('Access-Control-Allow-Origin'),
+                    'Access-Control-Allow-Methods': response.headers.get('Access-Control-Allow-Methods'),
+                    'Access-Control-Allow-Headers': response.headers.get('Access-Control-Allow-Headers')
+                };
+                
+                showResult('cors-result', 
+                    `✅ CORS Headers:\n\n${JSON.stringify(corsHeaders, null, 2)}`,
+                    'success'
+                );
+            } catch (error) {
+                showResult('cors-result', 
+                    `❌ CORS Error!\n\n${error.message}`,
+                    'error'
+                );
+            }
+        }
+
+        async function testLogin() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            showResult('login-result', 'Logging in...', 'info');
+            
+            try {
+                const response = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult('login-result', 
+                        `✅ Login Successful!\n\nStatus: ${response.status}\n\nUser:\n${JSON.stringify(data.user, null, 2)}\n\nToken: ${data.token.substring(0, 50)}...`,
+                        'success'
+                    );
+                } else {
+                    showResult('login-result', 
+                        `❌ Login Failed!\n\nStatus: ${response.status}\n\nError:\n${JSON.stringify(data, null, 2)}`,
+                        'error'
+                    );
+                }
+            } catch (error) {
+                showResult('login-result', 
+                    `❌ Network Error!\n\n${error.message}\n\nOlası sebepler:\n- API çalışmıyor\n- CORS hatası\n- Network bağlantı sorunu`,
+                    'error'
+                );
+            }
+        }
+
+        async function testMongoDB() {
+            showResult('mongodb-result', 'Testing MongoDB connection...', 'info');
+            try {
+                const response = await fetch(`${API_URL}/health`);
+                const data = await response.json();
+                
+                if (data.mongodb === 'connected') {
+                    showResult('mongodb-result', 
+                        `✅ MongoDB Connected!\n\nConnection Status: ${data.mongodb}\n\nTimestamp: ${data.timestamp}`,
+                        'success'
+                    );
+                } else {
+                    showResult('mongodb-result', 
+                        `⚠️ MongoDB Status: ${data.mongodb || 'unknown'}\n\nResponse:\n${JSON.stringify(data, null, 2)}`,
+                        'error'
+                    );
+                }
+            } catch (error) {
+                showResult('mongodb-result', 
+                    `❌ Error!\n\n${error.message}`,
+                    'error'
+                );
+            }
+        }
+
+        // Sayfa yüklendiğinde otomatik health check
+        window.onload = function() {
+            console.log('API URL:', API_URL);
+            console.log('Test aracı hazır. Testleri başlatmak için butonlara tıklayın.');
+        };
+    </script>
+</body>
+</html>

@@ -44,7 +44,41 @@ const app = express();
 app.use(helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false }));
 app.use(mongoSanitize());
 app.use(compression());
-app.use(cors({ origin: true, credentials: true }));
+
+// CORS configuration
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+  'https://tpss-quiz-app.vercel.app',
+  process.env.CORS_ORIGIN
+].filter(Boolean);
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps, Postman, or curl)
+    if (!origin) return callback(null, true);
+    
+    try {
+      const hostname = new URL(origin).hostname;
+      const isVercel = hostname.endsWith('.vercel.app');
+      const isNetlify = hostname.endsWith('.netlify.app');
+      const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
+      
+      if (allowedOrigins.includes(origin) || isVercel || isNetlify || isLocalhost) {
+        return callback(null, true);
+      }
+    } catch (err) {
+      // Invalid URL
+    }
+    
+    console.warn(`CORS blocked origin: ${origin}`);
+    callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
