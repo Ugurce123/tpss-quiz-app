@@ -29,3 +29,7 @@ server/reset-*.js
 server/update-*.js
 server/test-*.js
 .github
+
+# API - Sadece index.js serverless function olarak çalışsın
+api/init-production-db.js
+api/package.json
