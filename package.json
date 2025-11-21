@@ -21,7 +21,11 @@
     "compression": "^1.8.1",
     "bcryptjs": "^2.4.3",
     "jsonwebtoken": "^9.0.2",
-    "express-validator": "^7.3.0"
+    "express-validator": "^7.3.0",
+    "multer": "^1.4.5-lts.1",
+    "morgan": "^1.10.1",
+    "hpp": "^0.2.3",
+    "xss-clean": "^0.1.4"
   },
   "engines": {
     "node": ">=18.0.0"
