@@ -48,12 +48,12 @@ async function connectToDatabase() {
 }
 
 // Import routes
-const authRoutes = require('../server/routes/auth');
-const questionsRoutes = require('../server/routes/questions');
-const levelsRoutes = require('../server/routes/levels');
-const quizRoutes = require('../server/routes/quiz');
-const statisticsRoutes = require('../server/routes/statistics');
-const initRoutes = require('../server/routes/init');
+const authRoutes = require('./server/routes/auth');
+const questionsRoutes = require('./server/routes/questions');
+const levelsRoutes = require('./server/routes/levels');
+const quizRoutes = require('./server/routes/quiz');
+const statisticsRoutes = require('./server/routes/statistics');
+const initRoutes = require('./server/routes/init');
 
 // Health check (before DB connection)
 app.get('/api/health', (req, res) => {
