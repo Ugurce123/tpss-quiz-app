@@ -11,9 +11,9 @@ const multer = require('multer');
 const path = require('path');
 
 // Models
-const User = require('./models/User');
-const Question = require('./models/Question');
-const Level = require('./models/Level');
+const User = require('../lib/models/User');
+const Question = require('../lib/models/Question');
+const Level = require('../lib/models/Level');
 
 // Middleware helpers
 const failedAttempts = new Map();
