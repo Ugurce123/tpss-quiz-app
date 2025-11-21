@@ -1,18 +1,18 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
-const User = require('./models/User');
+const User = require('../server/models/User');
 const { 
   authenticateToken, 
   requireAdmin, 
   bruteForceProtection,
   recordFailedAttempt,
   clearFailedAttempts
-} = require('./middleware/auth');
+} = require('../server/middleware/auth');
 const { 
   validateRegister, 
   validateLogin,
   sanitizeObject 
-} = require('./middleware/validation');
+} = require('../server/middleware/validation');
 const router = express.Router();
 
 // Güvenli kayıt
