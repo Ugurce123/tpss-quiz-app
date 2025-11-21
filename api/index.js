@@ -1339,6 +1339,14 @@ connectToDatabase().then(() => {
     }
   });
   
+  // Mount imported routes
+  app.use('/api/auth', authRoutes);
+  app.use('/api/questions', questionsRoutes);
+  app.use('/api/levels', levelsRoutes);
+  app.use('/api/quiz', quizRoutes);
+  app.use('/api/statistics', statisticsRoutes);
+  app.use('/api/init', initRoutes);
+  
   // Health check endpoint
   app.get('/api/health', (req, res) => {
     res.json({
