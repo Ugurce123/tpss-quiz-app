@@ -54,7 +54,16 @@ const quizRoutes = require('../server/routes/quiz');
 const statisticsRoutes = require('../server/routes/statistics');
 const initRoutes = require('../server/routes/init');
 
-// Connect to DB and setup routes
+// Health check (before DB connection)
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'OK', 
+    timestamp: new Date().toISOString(),
+    mongodb: cachedDb ? 'connected' : 'not connected'
+  });
+});
+
+// Setup routes after DB connection
 connectToDatabase().then(() => {
   app.use('/api/auth', authRoutes);
   app.use('/api/questions', questionsRoutes);
@@ -62,10 +71,6 @@ connectToDatabase().then(() => {
   app.use('/api/quiz', quizRoutes);
   app.use('/api/statistics', statisticsRoutes);
   app.use('/api/init', initRoutes);
-  
-  app.get('/api/health', (req, res) => {
-    res.json({ status: 'OK', timestamp: new Date().toISOString() });
-  });
 }).catch(err => {
   console.error('DB Connection Error:', err);
 });
