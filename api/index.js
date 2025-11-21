@@ -271,7 +271,13 @@ app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'OK', 
     timestamp: new Date().toISOString(),
-    mongodb: cachedDb ? 'connected' : 'not connected'
+    mongodb: cachedDb ? 'connected' : 'not connected',
+    env: {
+      NODE_ENV: process.env.NODE_ENV,
+      MONGODB_URI: process.env.MONGODB_URI ? 'SET' : 'NOT SET',
+      JWT_SECRET: process.env.JWT_SECRET ? 'SET' : 'NOT SET',
+      CORS_ORIGIN: process.env.CORS_ORIGIN || 'NOT SET'
+    }
   });
 });
 
