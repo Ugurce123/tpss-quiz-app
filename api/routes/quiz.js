@@ -1,8 +1,8 @@
 const express = require('express');
-const Question = require('../models/Question');
-const User = require('../models/User');
-const Level = require('../models/Level');
-const { authenticateToken, requireApproval } = require('../middleware/auth');
+const Question = require('../api/models/Question');
+const User = require('../api/models/User');
+const Level = require('../api/models/Level');
+const { authenticateToken, requireApproval } = require('../api/middleware/auth');
 
 const router = express.Router();
 

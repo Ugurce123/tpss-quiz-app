@@ -1,8 +1,8 @@
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
-const Question = require('../models/Question');
-const { authenticateToken, requireAdmin } = require('../middleware/auth');
+const Question = require('../api/models/Question');
+const { authenticateToken, requireAdmin } = require('../api/middleware/auth');
 
 const router = express.Router();
 

@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/User');
-const Level = require('../models/Level');
-const Question = require('../models/Question');
-const { authenticateToken, requireApproval } = require('../middleware/auth');
+const User = require('../api/models/User');
+const Level = require('../api/models/Level');
+const Question = require('../api/models/Question');
+const { authenticateToken, requireApproval } = require('../api/middleware/auth');
 
 // Genel istatistikler
 router.get('/general', authenticateToken, requireApproval, async (req, res) => {
