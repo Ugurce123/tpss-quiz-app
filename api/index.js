@@ -205,8 +205,7 @@ const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
   standardHeaders: true,
-  legacyHeaders: false,
-  keyGenerator: (req) => req.ip || (req.connection ? req.connection.remoteAddress : (req.socket ? req.socket.remoteAddress : ''))
+  legacyHeaders: false
 });
 app.use(limiter);
 
