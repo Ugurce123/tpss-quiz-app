@@ -36,7 +36,7 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false
 }));
 
-// 2. Rate Limiting - DDoS koruması
+// 2. Rate Limiting - DDoS koruması (Vercel uyumlu)
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 dakika
   max: 100, // IP başına maksimum 100 istek
@@ -45,10 +45,18 @@ const limiter = rateLimit({
     retryAfter: 15 * 60
   },
   standardHeaders: true,
-  legacyHeaders: false
+  legacyHeaders: false,
+  keyGenerator: (req, res) => {
+    // Vercel'de X-Forwarded-For header'ını kullan
+    return req.headers['x-forwarded-for'] || req.ip || req.connection.remoteAddress;
+  },
+  skip: (req, res) => {
+    // Geliştirme ortamında rate limiting'i devre dışı bırak
+    return process.env.NODE_ENV !== 'production';
+  }
 });
 
-// 3. Auth endpoint'leri için daha sıkı rate limiting
+// 3. Auth endpoint'leri için daha sıkı rate limiting (Vercel uyumlu)
 const authLimiter = rateLimit({
   windowMs: 5 * 60 * 1000, // 5 dakika
   max: 20, // IP başına maksimum 20 giriş denemesi
@@ -56,7 +64,15 @@ const authLimiter = rateLimit({
     error: 'Çok fazla giriş denemesi. 5 dakika sonra tekrar deneyin.',
     retryAfter: 5 * 60
   },
-  skipSuccessfulRequests: true
+  skipSuccessfulRequests: true,
+  keyGenerator: (req, res) => {
+    // Vercel'de X-Forwarded-For header'ını kullan
+    return req.headers['x-forwarded-for'] || req.ip || req.connection.remoteAddress;
+  },
+  skip: (req, res) => {
+    // Geliştirme ortamında rate limiting'i devre dışı bırak
+    return process.env.NODE_ENV !== 'production';
+  }
 });
 
 // 4. MongoDB Injection koruması
@@ -137,9 +153,9 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
   }
 }));
 
-// Rate limiting uygula (geçici olarak devre dışı)
-// app.use(limiter);
-// app.use('/api/auth', authLimiter);
+// Rate limiting uygula
+app.use(limiter);
+app.use('/api/auth', authLimiter);
 
 // MongoDB bağlantısı
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/baggage-quiz', {
