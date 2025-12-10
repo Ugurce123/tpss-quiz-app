@@ -7,11 +7,9 @@ if (isDesktopMode) {
   API_BASE_URL = 'http://localhost:5001';
 } else if (process.env.REACT_APP_API_URL) {
   API_BASE_URL = process.env.REACT_APP_API_URL;
-} else if (typeof window !== 'undefined') {
-  // Vercel'de API aynı domain'de
-  API_BASE_URL = window.location.origin;
 } else {
-  API_BASE_URL = '';
+  // Production'da Vercel API URL'si
+  API_BASE_URL = 'https://tpss-quiz-app.vercel.app';
 }
 
 export const API_ENDPOINTS = {

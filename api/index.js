@@ -123,8 +123,7 @@ app.use('/uploads', express.static(path.join(__dirname, '../server/uploads'), {
   }
 }));
 
-// Client static files serve et
-app.use(express.static(path.join(__dirname, '../client/build')));
+// API sadece backend serve eder
 
 // Rate limiting
 app.use(limiter);
@@ -164,9 +163,9 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Catch-all handler: React app için tüm diğer routes'ları index.html'e yönlendir
+// API 404 handler
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../client/build/index.html'));
+  res.status(404).json({ error: 'API endpoint bulunamadı' });
 });
 
 // Export for Vercel
