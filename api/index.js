@@ -143,13 +143,13 @@ const quizRoutes = require('../server/routes/quiz');
 const statisticsRoutes = require('../server/routes/statistics');
 const initRoutes = require('../server/routes/init');
 
-// Routes bağla (Vercel'de tüm istekler root'a gelir)
-app.use('/auth', authRoutes);
-app.use('/questions', questionsRoutes);
-app.use('/levels', levelsRoutes);
-app.use('/quiz', quizRoutes);
-app.use('/statistics', statisticsRoutes);
-app.use('/init', initRoutes);
+// Routes bağla
+app.use('/api/auth', authRoutes);
+app.use('/api/questions', questionsRoutes);
+app.use('/api/levels', levelsRoutes);
+app.use('/api/quiz', quizRoutes);
+app.use('/api/statistics', statisticsRoutes);
+app.use('/api/init', initRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
