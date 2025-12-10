@@ -68,7 +68,7 @@ const AdminPanel = () => {
       console.log('Token:', token ? 'Mevcut' : 'Yok');
       console.log('API URL:', `${API_BASE_URL}/api/auth/users/${userId}/approve`);
       
-      const response = await axios.patch(
+      await axios.patch(
         `${API_BASE_URL}/api/auth/users/${userId}/approve`,
         {},
         {
@@ -95,7 +95,7 @@ const AdminPanel = () => {
     try {
       const token = localStorage.getItem('token');
       
-      const response = await axios.patch(
+      await axios.patch(
         `${API_BASE_URL}/api/auth/users/${userId}/disapprove`,
         {},
         {

@@ -1,9 +1,8 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import API_BASE_URL, { API_ENDPOINTS } from '../config/api';
+import { API_ENDPOINTS } from '../config/api';
 import { 
   isTokenValid, 
-  secureStorage, 
   sanitizeInput,
   setupSessionTimeout 
 } from '../utils/security';
@@ -22,6 +21,25 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const checkTokenValidity = useCallback(async () => {
+    try {
+      await axios.get(`${process.env.REACT_APP_API_URL || "http://localhost:5001"}/api/quiz/stats`);
+      // Token geçerli, kullanıcı bilgilerini localStorage'dan al
+      const userData = localStorage.getItem('user');
+      if (userData) {
+        setUser(JSON.parse(userData));
+      }
+    } catch (error) {
+      // Token geçersiz, temizle
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      delete axios.defaults.headers.common['Authorization'];
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token && isTokenValid(token)) {
@@ -37,23 +55,9 @@ export const AuthProvider = ({ children }) => {
       }
       setLoading(false);
     }
-  }, []);
+  }, [checkTokenValidity]);
 
-  const checkTokenValidity = async () => {
-    try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL || "http://localhost:5001"}/api/quiz/stats`);
-      // Token geçerli, kullanıcı bilgilerini localStorage'dan al
-      const userData = localStorage.getItem('user');
-      if (userData) {
-        setUser(JSON.parse(userData));
-      }
-    } catch (error) {
-      // Token geçersiz, temizle
-      logout();
-    } finally {
-      setLoading(false);
-    }
-  };
+
 
   const login = async (email, password) => {
     try {

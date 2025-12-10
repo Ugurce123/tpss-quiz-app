@@ -6,10 +6,11 @@ import { isDesktopMode } from '../config/desktop';
 
 const Home = () => {
   const { user } = useAuth();
-  const [isDesktop, setIsDesktop] = useState(false);
-
   useEffect(() => {
-    setIsDesktop(isDesktopMode);
+    // Desktop mode check (for future use)
+    if (isDesktopMode) {
+      console.log('Desktop mode active');
+    }
   }, []);
 
   return (
