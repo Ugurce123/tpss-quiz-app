@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Photos URL Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-container { max-width: 600px; margin: 0 auto; }
+        .url-input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; }
+        .result { margin: 20px 0; padding: 15px; border: 1px solid #ddd; background: #f9f9f9; }
+        .preview-img { max-width: 100%; height: auto; border: 1px solid #ccc; }
+        .success { border-color: #4CAF50; background: #f1f8e9; }
+        .error { border-color: #f44336; background: #ffebee; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 Google Photos URL Test</h1>
+        
+        <h3>Test URL'si:</h3>
+        <input type="text" class="url-input" id="urlInput" 
+               value="https://photos.google.com/u/1/search/CgAiCBIGCgRyAgoAKJnAubiwMw%3D%3D/photo/AF1QipMVG2-vU-6VzljXVswf0LZdl-rWMGihE7E64EA"
+               placeholder="Google Photos URL'sini buraya yapıştırın">
+        
+        <button onclick="testUrl()" style="padding: 10px 20px; background: #4CAF50; color: white; border: none; cursor: pointer;">
+            🔍 URL'yi Test Et
+        </button>
+        
+        <div id="result" class="result" style="display: none;">
+            <h4>Sonuç:</h4>
+            <div id="resultContent"></div>
+        </div>
+    </div>
+
+    <script>
+        function convertGooglePhotosUrl(url) {
+            if (!url) return '';
+            
+            // Google Photos URL formatı: https://photos.google.com/u/1/search/.../photo/PHOTO_ID
+            // Görüntülenebilir format: https://lh3.googleusercontent.com/PHOTO_ID=w500-h400
+            
+            const photoMatch = url.match(/photo\/([A-Za-z0-9_-]+)/);
+            if (photoMatch && photoMatch[1]) {
+                return `https://lh3.googleusercontent.com/${photoMatch[1]}=w500-h400`;
+            }
+            
+            // Google Drive URL formatı: https://drive.google.com/file/d/FILE_ID/view?usp=sharing
+            const driveMatch = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+            if (driveMatch && driveMatch[1]) {
+                return `https://drive.google.com/uc?export=view&id=${driveMatch[1]}`;
+            }
+            
+            // Eğer zaten doğru formattaysa veya başka bir URL ise olduğu gibi döndür
+            return url;
+        }
+
+        function testUrl() {
+            const url = document.getElementById('urlInput').value;
+            const resultDiv = document.getElementById('result');
+            const resultContent = document.getElementById('resultContent');
+            
+            if (!url) {
+                resultContent.innerHTML = '<p style="color: red;">❌ Lütfen bir URL girin!</p>';
+                resultDiv.className = 'result error';
+                resultDiv.style.display = 'block';
+                return;
+            }
+            
+            console.log('🔍 Test edilen URL:', url);
+            
+            // URL'yi dönüştür
+            const convertedUrl = convertGooglePhotosUrl(url);
+            
+            console.log('✅ Dönüştürülen URL:', convertedUrl);
+            
+            // Photo ID'yi çıkar
+            const photoMatch = url.match(/photo\/([A-Za-z0-9_-]+)/);
+            
+            let resultHtml = `
+                <p><strong>📥 Orijinal URL:</strong><br>
+                <code style="word-break: break-all; background: #f0f0f0; padding: 2px 4px;">${url}</code></p>
+                
+                <p><strong>📤 Dönüştürülen URL:</strong><br>
+                <code style="word-break: break-all; background: #f0f0f0; padding: 2px 4px;">${convertedUrl}</code></p>
+            `;
+            
+            if (photoMatch && photoMatch[1]) {
+                resultHtml += `
+                    <p><strong>🆔 Photo ID:</strong> <code>${photoMatch[1]}</code></p>
+                    <p><strong>✅ Durum:</strong> <span style="color: green;">Başarılı - Photo ID bulundu</span></p>
+                    
+                    <h4>🖼️ Görsel Önizleme:</h4>
+                    <img src="${convertedUrl}" alt="Google Photos Test" class="preview-img" 
+                         onload="console.log('✅ Görsel başarıyla yüklendi')" 
+                         onerror="console.error('❌ Görsel yüklenemedi'); this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <p style="color: red; display: none;">❌ Görsel yüklenemedi. URL'yi kontrol edin.</p>
+                `;
+                resultDiv.className = 'result success';
+            } else {
+                resultHtml += `
+                    <p><strong>❌ Durum:</strong> <span style="color: red;">Hata - Photo ID bulunamadı</span></p>
+                    <p><strong>💡 Çözüm:</strong> Google Photos'ta görseli açın ve adres çubuğundaki URL'yi kopyalayın.</p>
+                `;
+                resultDiv.className = 'result error';
+            }
+            
+            resultContent.innerHTML = resultHtml;
+            resultDiv.style.display = 'block';
+        }
+        
+        // Sayfa yüklendiğinde otomatik test et
+        window.onload = function() {
+            testUrl();
+        };
+    </script>
+</body>
+</html>

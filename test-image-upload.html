@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Image Upload</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, textarea, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        button { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .preview { margin-top: 10px; max-width: 300px; }
+        .result { margin-top: 20px; padding: 10px; border-radius: 5px; }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🖼️ Görsel Yükleme Testi</h1>
+        
+        <form id="questionForm">
+            <div class="form-group">
+                <label for="text">Soru Metni:</label>
+                <textarea id="text" required>Bu bagajı inceleyin ve durumunu belirleyin.</textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="correctAnswer">Doğru Cevap:</label>
+                <select id="correctAnswer">
+                    <option value="clean">Temiz</option>
+                    <option value="dirty">Kirli</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="level">Seviye:</label>
+                <input type="number" id="level" value="1" min="1" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="imageFile">Görsel Dosyası:</label>
+                <input type="file" id="imageFile" accept="image/*">
+                <div id="preview"></div>
+            </div>
+            
+            <button type="submit">Soru Oluştur</button>
+        </form>
+        
+        <div id="result"></div>
+        
+        <hr style="margin: 40px 0;">
+        
+        <h2>📋 Mevcut Sorular</h2>
+        <button onclick="loadQuestions()">Soruları Yükle</button>
+        <div id="questions"></div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:5001';
+        
+        // Admin token (geçici test için)
+        const adminToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NzU4MzY5YzY5YzY5YzY5YzY5YzY5YzYiLCJ1c2VybmFtZSI6ImFkbWluIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzMzODI0ODAwfQ.test';
+        
+        // Dosya seçildiğinde önizleme göster
+        document.getElementById('imageFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const preview = document.getElementById('preview');
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML = `
+                        <p><strong>Önizleme:</strong></p>
+                        <img src="${e.target.result}" class="preview" alt="Önizleme">
+                        <p>Dosya: ${file.name} (${(file.size / 1024).toFixed(1)} KB)</p>
+                    `;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.innerHTML = '';
+            }
+        });
+        
+        // Form gönderimi
+        document.getElementById('questionForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<p>⏳ Soru oluşturuluyor...</p>';
+            
+            try {
+                const formData = {
+                    text: document.getElementById('text').value,
+                    correctAnswer: document.getElementById('correctAnswer').value,
+                    level: parseInt(document.getElementById('level').value),
+                    points: 10,
+                    difficulty: 'medium',
+                    category: 'general'
+                };
+                
+                // Görsel dosyası varsa Base64'e çevir
+                const fileInput = document.getElementById('imageFile');
+                if (fileInput.files[0]) {
+                    const file = fileInput.files[0];
+                    const reader = new FileReader();
+                    
+                    reader.onload = async function(e) {
+                        formData.imageBase64 = e.target.result;
+                        formData.fileName = file.name;
+                        
+                        console.log('📤 Gönderilen veri:', formData);
+                        
+                        const response = await fetch(`${API_BASE_URL}/api/questions`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${adminToken}`
+                            },
+                            body: JSON.stringify(formData)
+                        });
+                        
+                        const result = await response.json();
+                        console.log('📥 Sunucu yanıtı:', result);
+                        
+                        if (response.ok) {
+                            resultDiv.innerHTML = `
+                                <div class="success">
+                                    <h3>✅ Soru başarıyla oluşturuldu!</h3>
+                                    <p><strong>ID:</strong> ${result._id}</p>
+                                    <p><strong>Görsel:</strong> ${result.image || 'Yok'}</p>
+                                    ${result.image ? `<img src="${API_BASE_URL}${result.image}" style="max-width: 200px; margin-top: 10px;">` : ''}
+                                </div>
+                            `;
+                            document.getElementById('questionForm').reset();
+                            document.getElementById('preview').innerHTML = '';
+                        } else {
+                            throw new Error(result.message || 'Bilinmeyen hata');
+                        }
+                    };
+                    
+                    reader.readAsDataURL(file);
+                } else {
+                    // Görsel olmadan gönder
+                    console.log('📤 Gönderilen veri (görselsiz):', formData);
+                    
+                    const response = await fetch(`${API_BASE_URL}/api/questions`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${adminToken}`
+                        },
+                        body: JSON.stringify(formData)
+                    });
+                    
+                    const result = await response.json();
+                    console.log('📥 Sunucu yanıtı:', result);
+                    
+                    if (response.ok) {
+                        resultDiv.innerHTML = `
+                            <div class="success">
+                                <h3>✅ Soru başarıyla oluşturuldu!</h3>
+                                <p><strong>ID:</strong> ${result._id}</p>
+                                <p><strong>Görsel:</strong> Yok</p>
+                            </div>
+                        `;
+                        document.getElementById('questionForm').reset();
+                    } else {
+                        throw new Error(result.message || 'Bilinmeyen hata');
+                    }
+                }
+                
+            } catch (error) {
+                console.error('❌ Hata:', error);
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h3>❌ Hata oluştu!</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        });
+        
+        // Soruları yükle
+        async function loadQuestions() {
+            const questionsDiv = document.getElementById('questions');
+            questionsDiv.innerHTML = '<p>⏳ Sorular yükleniyor...</p>';
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/questions`, {
+                    headers: {
+                        'Authorization': `Bearer ${adminToken}`
+                    }
+                });
+                
+                const questions = await response.json();
+                console.log('📋 Sorular:', questions);
+                
+                if (response.ok) {
+                    questionsDiv.innerHTML = `
+                        <h3>📊 Toplam ${questions.length} soru bulundu</h3>
+                        ${questions.slice(0, 5).map(q => `
+                            <div style="border: 1px solid #ddd; padding: 10px; margin: 10px 0; border-radius: 5px;">
+                                <p><strong>Soru:</strong> ${q.text}</p>
+                                <p><strong>Seviye:</strong> ${q.level} | <strong>Cevap:</strong> ${q.correctAnswer}</p>
+                                <p><strong>Görsel:</strong> ${q.image || 'Yok'}</p>
+                                ${q.image ? `
+                                    <img src="${q.image.startsWith('http') ? q.image : API_BASE_URL + q.image}" 
+                                         style="max-width: 150px; margin-top: 5px;" 
+                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                    <p style="display: none; color: red;">❌ Görsel yüklenemedi</p>
+                                ` : ''}
+                            </div>
+                        `).join('')}
+                        ${questions.length > 5 ? `<p>... ve ${questions.length - 5} soru daha</p>` : ''}
+                    `;
+                } else {
+                    throw new Error(questions.message || 'Sorular yüklenemedi');
+                }
+                
+            } catch (error) {
+                console.error('❌ Sorular yüklenirken hata:', error);
+                questionsDiv.innerHTML = `
+                    <div class="error">
+                        <p>❌ Sorular yüklenirken hata: ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Sayfa yüklendiğinde soruları yükle
+        window.addEventListener('load', loadQuestions);
+    </script>
+</body>
+</html>

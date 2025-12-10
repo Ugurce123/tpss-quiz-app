@@ -1,0 +1,45 @@
+{
+  "name": "baggage-quiz-app",
+  "version": "1.0.0",
+  "description": "Baggage Security Quiz Application - Full Stack MERN App",
+  "main": "server/index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server:dev\" \"npm run client:dev\"",
+    "start": "npm run server:start",
+    "build": "cd client && npm install && npm run build",
+    "server:dev": "cd server && npm run dev",
+    "server:start": "cd server && npm start",
+    "client:dev": "cd client && npm start",
+    "client:build": "cd client && npm run build",
+    "install:all": "npm install && cd server && npm install && cd ../client && npm install",
+    "heroku-postbuild": "npm run install:all && npm run build",
+    "vercel-build": "cd client && npm install && npm run build",
+    "electron:dev": "cross-env NODE_ENV=development concurrently \"npm run client:dev\" \"wait-on http://localhost:3000 && electron electron/main.js\"",
+    "electron:build": "npm run client:build && electron-builder",
+    "electron:pack": "electron-builder --dir",
+    "preelectron:build": "npm run client:build",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "keywords": [
+    "baggage",
+    "security",
+    "quiz",
+    "mern",
+    "react",
+    "nodejs",
+    "mongodb"
+  ],
+  "author": "Baggage Quiz Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "cross-env": "^10.1.0",
+    "electron": "^39.2.2",
+    "electron-builder": "^26.0.12",
+    "wait-on": "^9.0.3"
+  }
+}

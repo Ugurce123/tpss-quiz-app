@@ -1,0 +1,151 @@
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import axios from 'axios';
+import API_BASE_URL, { API_ENDPOINTS } from '../config/api';
+import { 
+  isTokenValid, 
+  secureStorage, 
+  sanitizeInput,
+  setupSessionTimeout 
+} from '../utils/security';
+
+const AuthContext = createContext();
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
+
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token && isTokenValid(token)) {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      checkTokenValidity();
+      // Session timeout setup
+      setupSessionTimeout(30); // 30 dakika
+    } else {
+      // Geçersiz token varsa temizle
+      if (token) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+      }
+      setLoading(false);
+    }
+  }, []);
+
+  const checkTokenValidity = async () => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL || "http://localhost:5001"}/api/quiz/stats`);
+      // Token geçerli, kullanıcı bilgilerini localStorage'dan al
+      const userData = localStorage.getItem('user');
+      if (userData) {
+        setUser(JSON.parse(userData));
+      }
+    } catch (error) {
+      // Token geçersiz, temizle
+      logout();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const login = async (email, password) => {
+    try {
+      // Input sanitization
+      const sanitizedEmail = sanitizeInput(email);
+      const sanitizedPassword = sanitizeInput(password);
+      
+      const response = await axios.post(API_ENDPOINTS.LOGIN, {
+        email: sanitizedEmail,
+        password: sanitizedPassword
+      });
+
+      const { token, user } = response.data;
+      
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      
+      setUser(user);
+      return { success: true };
+    } catch (error) {
+      return { 
+        success: false, 
+        message: error.response?.data?.message || 'Giriş başarısız' 
+      };
+    }
+  };
+
+  const register = async (username, email, password) => {
+    try {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL || "http://localhost:5001"}/api/auth/register`, {
+        username,
+        email,
+        password
+      });
+
+      const { token, user } = response.data;
+      
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      
+      setUser(user);
+      return { success: true };
+    } catch (error) {
+      return { 
+        success: false, 
+        message: error.response?.data?.message || 'Kayıt başarısız' 
+      };
+    }
+  };
+
+  const logout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    delete axios.defaults.headers.common['Authorization'];
+    setUser(null);
+  };
+
+  const refreshUser = async () => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL || "http://localhost:5001"}/api/quiz/stats`);
+      // Stats endpoint'inden kullanıcı bilgilerini al ve güncelle
+      const updatedUser = {
+        ...user,
+        currentLevel: response.data.currentLevel,
+        completedLevels: response.data.completedLevels
+      };
+      
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      setUser(updatedUser);
+      
+      console.log('Kullanıcı bilgileri güncellendi:', updatedUser);
+      return updatedUser;
+    } catch (error) {
+      console.error('Kullanıcı bilgileri güncellenirken hata:', error);
+      return user;
+    }
+  };
+
+  const value = {
+    user,
+    login,
+    register,
+    logout,
+    refreshUser,
+    loading
+  };
+
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
+};

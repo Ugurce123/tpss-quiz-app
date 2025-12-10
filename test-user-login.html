@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test User Login & Quiz</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, select { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        button { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px; }
+        button:hover { background: #0056b3; }
+        .result { margin-top: 20px; padding: 10px; border-radius: 4px; }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .info { background: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; }
+        .quiz-question { border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .quiz-image { max-width: 300px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Kullanıcı Girişi ve Quiz Testi</h1>
+        
+        <!-- Login Form -->
+        <div id="loginSection">
+            <h2>Giriş Yap</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" value="yeni1@test.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Şifre:</label>
+                    <input type="password" id="password" value="1234" required>
+                </div>
+                <button type="submit">Giriş Yap</button>
+            </form>
+        </div>
+        
+        <!-- Quiz Section -->
+        <div id="quizSection" style="display: none;">
+            <h2>🎯 Quiz Testi</h2>
+            <div class="form-group">
+                <label for="levelSelect">Seviye Seç:</label>
+                <select id="levelSelect">
+                    <option value="">Seviye seçin...</option>
+                </select>
+            </div>
+            <button onclick="startQuiz()">Quiz Başlat</button>
+            <button onclick="logout()">Çıkış Yap</button>
+        </div>
+        
+        <div id="result"></div>
+        
+        <!-- Quiz Display -->
+        <div id="quizDisplay"></div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:5001';
+        let currentToken = null;
+        let currentUser = null;
+        let levels = [];
+        
+        // Login form handler
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const resultDiv = document.getElementById('result');
+            
+            resultDiv.innerHTML = '<p>⏳ Giriş yapılıyor...</p>';
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                console.log('🔐 Login response:', data);
+                
+                if (response.ok) {
+                    currentToken = data.token;
+                    currentUser = data.user;
+                    
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <h3>✅ Giriş başarılı!</h3>
+                            <p><strong>Kullanıcı:</strong> ${data.user.username}</p>
+                            <p><strong>Email:</strong> ${data.user.email}</p>
+                            <p><strong>Onaylı:</strong> ${data.user.isApproved ? 'Evet' : 'Hayır'}</p>
+                            <p><strong>Mevcut Seviye:</strong> ${data.user.currentLevel}</p>
+                        </div>
+                    `;
+                    
+                    document.getElementById('loginSection').style.display = 'none';
+                    document.getElementById('quizSection').style.display = 'block';
+                    
+                    // Load levels
+                    await loadLevels();
+                } else {
+                    throw new Error(data.message || 'Giriş başarısız');
+                }
+                
+            } catch (error) {
+                console.error('❌ Login error:', error);
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h3>❌ Giriş hatası!</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        });
+        
+        // Load levels
+        async function loadLevels() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/levels`, {
+                    headers: {
+                        'Authorization': `Bearer ${currentToken}`
+                    }
+                });
+                
+                const data = await response.json();
+                console.log('📊 Levels:', data);
+                
+                if (response.ok) {
+                    levels = data;
+                    const levelSelect = document.getElementById('levelSelect');
+                    levelSelect.innerHTML = '<option value="">Seviye seçin...</option>';
+                    
+                    data.forEach(level => {
+                        const option = document.createElement('option');
+                        option.value = level._id;
+                        option.textContent = `Seviye ${level.level} - ${level.name}`;
+                        levelSelect.appendChild(option);
+                    });
+                } else {
+                    throw new Error(data.message || 'Seviyeler yüklenemedi');
+                }
+                
+            } catch (error) {
+                console.error('❌ Levels error:', error);
+                document.getElementById('result').innerHTML = `
+                    <div class="error">
+                        <p>❌ Seviyeler yüklenirken hata: ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Start quiz
+        async function startQuiz() {
+            const levelId = document.getElementById('levelSelect').value;
+            if (!levelId) {
+                alert('Lütfen bir seviye seçin!');
+                return;
+            }
+            
+            const resultDiv = document.getElementById('result');
+            const quizDisplay = document.getElementById('quizDisplay');
+            
+            resultDiv.innerHTML = '<p>⏳ Quiz yükleniyor...</p>';
+            quizDisplay.innerHTML = '';
+            
+            try {
+                console.log('🎯 Quiz başlatılıyor, levelId:', levelId);
+                console.log('🔗 API URL:', `${API_BASE_URL}/api/quiz/start/${levelId}`);
+                console.log('🔑 Token:', currentToken ? 'Mevcut' : 'Yok');
+                
+                const response = await fetch(`${API_BASE_URL}/api/quiz/start/${levelId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${currentToken}`
+                    }
+                });
+                
+                const data = await response.json();
+                console.log('📊 Quiz response:', data);
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <h3>✅ Quiz başarıyla yüklendi!</h3>
+                            <p><strong>Seviye:</strong> ${data.level.name}</p>
+                            <p><strong>Soru Sayısı:</strong> ${data.questions.length}</p>
+                            <p><strong>Görselli Sorular:</strong> ${data.questions.filter(q => q.image).length}</p>
+                        </div>
+                    `;
+                    
+                    // Display questions
+                    displayQuestions(data.questions);
+                } else {
+                    throw new Error(data.message || 'Quiz yüklenemedi');
+                }
+                
+            } catch (error) {
+                console.error('❌ Quiz error:', error);
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h3>❌ Quiz hatası!</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Display questions
+        function displayQuestions(questions) {
+            const quizDisplay = document.getElementById('quizDisplay');
+            
+            quizDisplay.innerHTML = `
+                <h2>📝 Quiz Soruları (İlk 3 soru)</h2>
+                ${questions.slice(0, 3).map((question, index) => `
+                    <div class="quiz-question">
+                        <h3>Soru ${index + 1}</h3>
+                        <p><strong>Metin:</strong> ${question.text}</p>
+                        <p><strong>Görsel:</strong> ${question.image || 'Yok'}</p>
+                        ${question.image ? `
+                            <div>
+                                <p><strong>Görsel Tipi:</strong> ${
+                                    question.image.startsWith('data:') ? 'Base64 Data URL' :
+                                    question.image.startsWith('http') ? 'HTTP URL' :
+                                    question.image.startsWith('/uploads/') ? 'Server File Path' :
+                                    'Unknown'
+                                }</p>
+                                <p><strong>Tam URL:</strong> ${getImageUrl(question.image)}</p>
+                                <img src="${getImageUrl(question.image)}" 
+                                     class="quiz-image" 
+                                     alt="Soru görseli"
+                                     onload="console.log('✅ Görsel yüklendi:', '${question.image}')"
+                                     onerror="console.error('❌ Görsel yüklenemedi:', '${question.image}'); this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                <p style="display: none; color: red;">❌ Görsel yüklenemedi</p>
+                            </div>
+                        ` : '<p style="color: #666;">📷 Bu soruda görsel bulunmuyor</p>'}
+                    </div>
+                `).join('')}
+            `;
+        }
+        
+        // Get image URL
+        function getImageUrl(image) {
+            if (!image) return '';
+            
+            if (image.startsWith('data:') || image.startsWith('http')) {
+                return image;
+            } else if (image.startsWith('/uploads/')) {
+                return `${API_BASE_URL}${image}`;
+            } else {
+                return `${API_BASE_URL}/uploads/${image}`;
+            }
+        }
+        
+        // Logout
+        function logout() {
+            currentToken = null;
+            currentUser = null;
+            levels = [];
+            
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('quizSection').style.display = 'none';
+            document.getElementById('result').innerHTML = '';
+            document.getElementById('quizDisplay').innerHTML = '';
+            
+            // Reset form
+            document.getElementById('loginForm').reset();
+            document.getElementById('email').value = 'yeni1@test.com';
+            document.getElementById('password').value = '1234';
+        }
+    </script>
+</body>
+</html>
