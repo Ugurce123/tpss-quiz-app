@@ -123,6 +123,9 @@ app.use('/uploads', express.static(path.join(__dirname, '../server/uploads'), {
   }
 }));
 
+// Client static files serve et
+app.use(express.static(path.join(__dirname, '../client/build')));
+
 // Rate limiting
 app.use(limiter);
 app.use('/api/auth', authLimiter);
@@ -159,6 +162,11 @@ app.get('/health', (req, res) => {
     uptime: process.uptime(),
     environment: process.env.NODE_ENV || 'development'
   });
+});
+
+// Catch-all handler: React app için tüm diğer routes'ları index.html'e yönlendir
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/build/index.html'));
 });
 
 // Export for Vercel
