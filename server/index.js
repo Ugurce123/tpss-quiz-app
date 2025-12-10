@@ -107,6 +107,24 @@ app.use(express.json({
 
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+// OPTIONS preflight isteğini işle
+app.options('*', cors({
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    const isAllowed = allowedOrigins.some(o => {
+      if (o.includes('*')) {
+        const pattern = new RegExp('^' + o.replace(/\./g, '\\.').replace(/\*/g, '.*') + '$');
+        return pattern.test(origin);
+      }
+      return origin === o;
+    });
+    callback(null, isAllowed);
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 // 9. Static files - güvenli servis
 app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
   maxAge: '1d',
