@@ -1,22 +1,16 @@
 [build]
   base = "client"
+  command = "npm ci && npm run build"
   publish = "build"
-  command = "npm install && npm run build"
 
 [build.environment]
   REACT_APP_API_URL = "https://tpss-quiz-app.vercel.app"
   GENERATE_SOURCEMAP = "false"
   ESLINT_NO_DEV_ERRORS = "true"
   TSC_COMPILE_ON_ERROR = "true"
+  CI = "false"
 
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-
-[context.production.environment]
-  NODE_ENV = "production"
-  REACT_APP_API_URL = "https://tpss-quiz-app.vercel.app"
-
-[context.deploy-preview.environment]
-  REACT_APP_API_URL = "https://tpss-quiz-app.vercel.app"
