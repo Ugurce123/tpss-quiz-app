@@ -1,7 +1,7 @@
 [build]
   base = "client"
   publish = "build"
-  command = "npm run build"
+  command = "npm install && npm run build"
 
 [build.environment]
   REACT_APP_API_URL = "https://tpss-quiz-app.vercel.app"
