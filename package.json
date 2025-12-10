@@ -16,8 +16,7 @@
     "electron:dev": "cross-env NODE_ENV=development concurrently \"npm run client:dev\" \"wait-on http://localhost:3000 && electron electron/main.js\"",
     "electron:build": "npm run client:build && electron-builder",
     "electron:pack": "electron-builder --dir",
-    "preelectron:build": "npm run client:build",
-    "postinstall": "electron-builder install-app-deps"
+    "preelectron:build": "npm run client:build"
   },
   "keywords": [
     "baggage",
