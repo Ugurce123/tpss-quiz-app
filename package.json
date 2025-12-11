@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "concurrently \"npm run server:dev\" \"npm run client:dev\"",
     "start": "npm run server:start",
-    "build": "cd client && npm install && npm run build",
+    "build": "node build.js",
+    "vercel-build": "node build.js",
     "server:dev": "cd server && npm run dev",
     "server:start": "cd server && npm start",
     "client:dev": "cd client && npm start",

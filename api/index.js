@@ -163,10 +163,5 @@ app.get('/health', (req, res) => {
   });
 });
 
-// API 404 handler
-app.get('*', (req, res) => {
-  res.status(404).json({ error: 'API endpoint bulunamadı' });
-});
-
-// Export for Vercel
+// Vercel serverless function export
 module.exports = app;
