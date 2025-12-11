@@ -153,9 +153,11 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
   }
 }));
 
-// Rate limiting uygula
-app.use(limiter);
-app.use('/api/auth', authLimiter);
+// Rate limiting uygula (sadece production'da)
+if (process.env.NODE_ENV === 'production') {
+  app.use(limiter);
+  app.use('/api/auth', authLimiter);
+}
 
 // MongoDB bağlantısı
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/baggage-quiz', {

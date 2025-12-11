@@ -1,11 +1,7 @@
-# Render.com Configuration for Backend
-
 services:
-  # Backend API Service
   - type: web
-    name: baggage-quiz-api
+    name: tpss-quiz-api
     env: node
-    region: frankfurt
     plan: free
     buildCommand: cd server && npm install
     startCommand: cd server && npm start
@@ -14,18 +10,3 @@ services:
         value: production
       - key: PORT
         value: 10000
-      - key: MONGODB_URI
-        sync: false
-      - key: JWT_SECRET
-        generateValue: true
-      - key: SESSION_SECRET
-        generateValue: true
-      - key: BCRYPT_ROUNDS
-        value: 12
-      - key: RATE_LIMIT_WINDOW_MS
-        value: 900000
-      - key: RATE_LIMIT_MAX_REQUESTS
-        value: 100
-      - key: CORS_ORIGIN
-        sync: false
-    healthCheckPath: /health

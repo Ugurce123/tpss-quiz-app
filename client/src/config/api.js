@@ -8,8 +8,8 @@ if (isDesktopMode) {
 } else if (process.env.REACT_APP_API_URL) {
   API_BASE_URL = process.env.REACT_APP_API_URL;
 } else {
-  // Production'da Vercel API URL'si
-  API_BASE_URL = 'https://tpss-quiz-app.vercel.app';
+  // Production'da Render API URL'si
+  API_BASE_URL = 'https://tpss-quiz-api.onrender.com';
 }
 
 export const API_ENDPOINTS = {
