@@ -123,8 +123,6 @@ app.use('/uploads', express.static(path.join(__dirname, '../server/uploads'), {
   }
 }));
 
-// API sadece backend serve eder
-
 // Rate limiting
 app.use(limiter);
 app.use('/api/auth', authLimiter);
@@ -160,6 +158,25 @@ app.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     environment: process.env.NODE_ENV || 'development'
+  });
+});
+
+// API health check
+app.get('/api/health', (req, res) => {
+  res.status(200).json({
+    status: 'API OK',
+    timestamp: new Date().toISOString(),
+    mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
+// Catch all for API routes
+app.use('/api/*', (req, res) => {
+  res.status(404).json({
+    error: 'API endpoint not found',
+    path: req.path,
+    method: req.method
   });
 });
 

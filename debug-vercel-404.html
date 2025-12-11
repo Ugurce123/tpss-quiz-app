@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vercel 404 Debug</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+        .success { background: #d4edda; }
+        .error { background: #f8d7da; }
+        .info { background: #d1ecf1; }
+        pre { background: #f8f9fa; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Vercel 404 Debug Test</h1>
+    
+    <button onclick="testAll()">Test All Endpoints</button>
+    <button onclick="clearResults()">Clear Results</button>
+    
+    <div id="results"></div>
+
+    <script>
+        const BASE_URL = 'https://tpss-quiz-app.vercel.app';
+        
+        function log(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `test ${type}`;
+            div.innerHTML = message;
+            document.getElementById('results').appendChild(div);
+        }
+        
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+        
+        async function testEndpoint(url, options = {}) {
+            try {
+                log(`🔍 Testing: ${url}`, 'info');
+                const response = await fetch(url, options);
+                const contentType = response.headers.get('content-type');
+                
+                let data;
+                if (contentType && contentType.includes('application/json')) {
+                    data = await response.json();
+                } else {
+                    data = await response.text();
+                }
+                
+                const result = {
+                    status: response.status,
+                    statusText: response.statusText,
+                    headers: Object.fromEntries(response.headers.entries()),
+                    data: data
+                };
+                
+                if (response.ok) {
+                    log(`✅ ${url}<br><pre>${JSON.stringify(result, null, 2)}</pre>`, 'success');
+                } else {
+                    log(`❌ ${url}<br><pre>${JSON.stringify(result, null, 2)}</pre>`, 'error');
+                }
+            } catch (error) {
+                log(`💥 ${url}<br>Error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testAll() {
+            clearResults();
+            
+            // Test ana sayfa
+            await testEndpoint(`${BASE_URL}/`);
+            
+            // Test health endpoint
+            await testEndpoint(`${BASE_URL}/health`);
+            
+            // Test API health
+            await testEndpoint(`${BASE_URL}/api/health`);
+            
+            // Test auth endpoint
+            await testEndpoint(`${BASE_URL}/api/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: 'test', password: 'test' })
+            });
+            
+            // Test levels endpoint
+            await testEndpoint(`${BASE_URL}/api/levels`);
+            
+            // Test quiz endpoint
+            await testEndpoint(`${BASE_URL}/api/quiz/start/1`);
+            
+            // Test static files
+            await testEndpoint(`${BASE_URL}/static/css/main.9a796084.css`);
+            await testEndpoint(`${BASE_URL}/static/js/main.1b18bb8d.js`);
+        }
+    </script>
+</body>
+</html>
