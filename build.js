@@ -1,11 +1,7 @@
-const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-console.log('🚀 Building client...');
-
-// Client build
-execSync('cd client && npm install && npm run build', { stdio: 'inherit' });
+console.log('🚀 Copying client build to public...');
 
 // Copy client build to public folder
 const buildDir = path.join(__dirname, 'client', 'build');
@@ -15,6 +11,10 @@ if (fs.existsSync(publicDir)) {
   fs.rmSync(publicDir, { recursive: true });
 }
 
-fs.cpSync(buildDir, publicDir, { recursive: true });
-
-console.log('✅ Build completed!');
+if (fs.existsSync(buildDir)) {
+  fs.cpSync(buildDir, publicDir, { recursive: true });
+  console.log('✅ Build completed!');
+} else {
+  console.error('❌ Client build directory not found!');
+  process.exit(1);
+}

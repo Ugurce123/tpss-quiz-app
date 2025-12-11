@@ -6,7 +6,6 @@ node_modules/
 *.log
 .DS_Store
 server/uploads/
-client/build/
 e-5ef9420a6ecf/
 TPSS-HAZIRLI-MOBIL-APP/
 tpss-quiz-app/
@@ -20,5 +19,4 @@ test-*.js
 **/*.test.js
 **/*.spec.js
 dist/
-build/
 coverage/
