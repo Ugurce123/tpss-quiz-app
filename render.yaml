@@ -2,10 +2,14 @@ services:
   - type: web
     name: tpss-quiz-api
     env: node
-    plan: free
+    region: frankfurt
     buildCommand: cd server && npm install
     startCommand: cd server && npm start
     envVars:
+      - key: MONGODB_URI
+        value: mongodb+srv://ugur%20çelik:Saw-Tpss.01@baggage-quiz-cluster.to5bpqn.mongodb.net/baggage-quiz?retryWrites=true&w=majority
+      - key: JWT_SECRET
+        value: 24a8e73ae959f18afe45aae67afc9ba80b7d15276003c4ceb13ba43315ac3d6a725c6639f6a2dcea158198af63859c27fba6f30fe77255e2ecc2f2e798a1e4d1
       - key: NODE_ENV
         value: production
       - key: PORT
