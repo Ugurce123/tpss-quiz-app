@@ -90,7 +90,7 @@ const corsOptions = {
     if (!origin) return callback(null, true);
     const isAllowed = allowedOrigins.some(o => {
       if (o.includes('*')) {
-        const pattern = new RegExp('^' + o.replace(/\./g, '\\.').replace(/\*/g, '.*') + '$');
+        const pattern = new RegExp('^' + o.replace(/\./g, '\\.').replace(/\*/g, '.*') + '$');$');
         return pattern.test(origin);
       }
       return origin === o;

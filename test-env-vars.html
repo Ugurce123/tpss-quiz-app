@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Environment Variables Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .warning { background-color: #fff3cd; color: #856404; }
+        pre { background: #f8f9fa; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Vercel Environment Variables Test</h1>
+    
+    <button onclick="testEnvVars()">Test Environment Variables</button>
+    <button onclick="testMongoDB()">Test MongoDB Connection</button>
+    <button onclick="testAuth()">Test Auth with Admin</button>
+    
+    <div id="results"></div>
+
+    <script>
+        const API_BASE = 'https://tpss-quiz-app.vercel.app';
+        
+        function addResult(message, type = 'warning') {
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.innerHTML = message;
+            document.getElementById('results').appendChild(div);
+        }
+        
+        async function testEnvVars() {
+            document.getElementById('results').innerHTML = '';
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/health`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    addResult(`✅ API Health Check:<br><pre>${JSON.stringify(data, null, 2)}</pre>`, 'success');
+                    
+                    if (data.mongodb === 'connected') {
+                        addResult('✅ MongoDB bağlantısı başarılı - Environment variables doğru ayarlanmış', 'success');
+                    } else {
+                        addResult('❌ MongoDB bağlantısı başarısız - MONGODB_URI kontrol et', 'error');
+                    }
+                } else {
+                    addResult(`❌ API Health Check Failed:<br><pre>${JSON.stringify(data, null, 2)}</pre>`, 'error');
+                }
+            } catch (error) {
+                addResult(`💥 API Health Check Error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testMongoDB() {
+            try {
+                const response = await fetch(`${API_BASE}/api/levels`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    addResult(`✅ MongoDB Test (Levels):<br><pre>${JSON.stringify(data, null, 2)}</pre>`, 'success');
+                } else {
+                    const errorData = await response.text();
+                    addResult(`❌ MongoDB Test Failed (${response.status}):<br><pre>${errorData}</pre>`, 'error');
+                }
+            } catch (error) {
+                addResult(`💥 MongoDB Test Error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testAuth() {
+            try {
+                const response = await fetch(`${API_BASE}/api/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: 'admin@baggage-quiz.com',
+                        password: 'Ugur.Saw-123'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    addResult(`✅ Admin Login Successful:<br><pre>${JSON.stringify(data, null, 2)}</pre>`, 'success');
+                } else {
+                    addResult(`❌ Admin Login Failed (${response.status}):<br><pre>${JSON.stringify(data, null, 2)}</pre>`, 'error');
+                }
+            } catch (error) {
+                addResult(`💥 Auth Test Error: ${error.message}`, 'error');
+            }
+        }
+    </script>
+</body>
+</html>
