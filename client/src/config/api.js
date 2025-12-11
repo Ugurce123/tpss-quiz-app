@@ -9,7 +9,7 @@ if (isDesktopMode) {
   API_BASE_URL = process.env.REACT_APP_API_URL;
 } else {
   // Production'da Render API URL'si
-  API_BASE_URL = 'https://tpss-quiz-api.onrender.com';
+  API_BASE_URL = 'https://tpss-quiz-app.onrender.com';
 }
 
 export const API_ENDPOINTS = {

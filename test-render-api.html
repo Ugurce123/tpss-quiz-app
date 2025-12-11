@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Render API Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .loading { background-color: #fff3cd; color: #856404; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        pre { background: #f8f9fa; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🚀 Render API Test</h1>
+    <p><strong>API URL:</strong> https://tpss-quiz-app.onrender.com</p>
+    
+    <div>
+        <button onclick="testHealth()">Test Health</button>
+        <button onclick="testAPIHealth()">Test API Health</button>
+        <button onclick="testLevels()">Test Levels</button>
+        <button onclick="testAdminLogin()">Test Admin Login</button>
+        <button onclick="clearResults()">Clear Results</button>
+    </div>
+    
+    <div id="results"></div>
+
+    <script>
+        const API_BASE = 'https://tpss-quiz-app.onrender.com';
+        
+        function addResult(message, type = 'loading') {
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.innerHTML = message;
+            document.getElementById('results').appendChild(div);
+            return div;
+        }
+        
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+        
+        async function testHealth() {
+            const result = addResult('🔍 Testing /health endpoint...', 'loading');
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    result.innerHTML = `✅ Health Check Success:<br><pre>${JSON.stringify(data, null, 2)}</pre>`;
+                    result.className = 'test-result success';
+                } else {
+                    result.innerHTML = `❌ Health Check Failed (${response.status}):<br><pre>${JSON.stringify(data, null, 2)}</pre>`;
+                    result.className = 'test-result error';
+                }
+            } catch (error) {
+                result.innerHTML = `💥 Health Check Error: ${error.message}`;
+                result.className = 'test-result error';
+            }
+        }
+        
+        async function testAPIHealth() {
+            const result = addResult('🔍 Testing /api/health endpoint...', 'loading');
+            try {
+                const response = await fetch(`${API_BASE}/api/health`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    result.innerHTML = `✅ API Health Success:<br><pre>${JSON.stringify(data, null, 2)}</pre>`;
+                    result.className = 'test-result success';
+                    
+                    if (data.mongodb === 'connected') {
+                        addResult('✅ MongoDB bağlantısı başarılı!', 'success');
+                    } else {
+                        addResult('⚠️ MongoDB bağlantısı yok - Environment variables kontrol et', 'error');
+                    }
+                } else {
+                    result.innerHTML = `❌ API Health Failed (${response.status}):<br><pre>${JSON.stringify(data, null, 2)}</pre>`;
+                    result.className = 'test-result error';
+                }
+            } catch (error) {
+                result.innerHTML = `💥 API Health Error: ${error.message}`;
+                result.className = 'test-result error';
+            }
+        }
+        
+        async function testLevels() {
+            const result = addResult('🔍 Testing /api/levels endpoint...', 'loading');
+            try {
+                const response = await fetch(`${API_BASE}/api/levels`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    result.innerHTML = `✅ Levels Success:<br><pre>${JSON.stringify(data, null, 2)}</pre>`;
+                    result.className = 'test-result success';
+                } else {
+                    const errorData = await response.text();
+                    result.innerHTML = `❌ Levels Failed (${response.status}):<br><pre>${errorData}</pre>`;
+                    result.className = 'test-result error';
+                }
+            } catch (error) {
+                result.innerHTML = `💥 Levels Error: ${error.message}`;
+                result.className = 'test-result error';
+            }
+        }
+        
+        async function testAdminLogin() {
+            const result = addResult('🔍 Testing admin login...', 'loading');
+            try {
+                const response = await fetch(`${API_BASE}/api/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: 'admin@baggage-quiz.com',
+                        password: 'Ugur.Saw-123'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    result.innerHTML = `✅ Admin Login Success:<br><pre>${JSON.stringify(data, null, 2)}</pre>`;
+                    result.className = 'test-result success';
+                } else {
+                    result.innerHTML = `❌ Admin Login Failed (${response.status}):<br><pre>${JSON.stringify(data, null, 2)}</pre>`;
+                    result.className = 'test-result error';
+                }
+            } catch (error) {
+                result.innerHTML = `💥 Admin Login Error: ${error.message}`;
+                result.className = 'test-result error';
+            }
+        }
+        
+        // Sayfa yüklendiğinde otomatik test
+        window.onload = function() {
+            addResult('🚀 Render API Test başlatılıyor...', 'loading');
+            setTimeout(testHealth, 1000);
+        };
+    </script>
+</body>
+</html>
